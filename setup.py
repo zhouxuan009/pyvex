@@ -73,16 +73,12 @@ def _build_vex():
     e['MULTIARCH'] = '1'
     e['DEBUG'] = '1'
 
-    cmd1 = ['nmake', '/f', 'Makefile-msvc', 'all']
-    cmd2 = ['make', '-f', 'Makefile-gcc', '-j', str(multiprocessing.cpu_count()), 'all']
-    cmd3 = ['gmake', '-f', 'Makefile-gcc', '-j', str(multiprocessing.cpu_count()), 'all']
-    for cmd in (cmd1, cmd2, cmd3):
-        try:
-            if subprocess.call(cmd, cwd=VEX_PATH, env=e) == 0:
-                break
-        except OSError:
-            continue
+    if sys.platform in ('win32'):
+        cmd = ['nmake', '/f', 'Makefile-msvc', 'all']
     else:
+        cmd = ['gmake', '-f', 'Makefile-gcc', '-j', str(multiprocessing.cpu_count()), 'all']
+
+    if subprocess.call(cmd, cwd=VEX_PATH, env=e) != 0:
         raise LibError("Unable to build libVEX.")
 
 def _build_pyvex():
@@ -91,16 +87,12 @@ def _build_pyvex():
     e['VEX_INCLUDE_PATH'] = os.path.join(VEX_PATH, 'pub')
     e['VEX_LIB_FILE'] = os.path.join(VEX_PATH, 'libvex.lib')
 
-    cmd1 = ['nmake', '/f', 'Makefile-msvc']
-    cmd2 = ['make', '-j', str(multiprocessing.cpu_count())]
-    cmd3 = ['gmake', '-j', str(multiprocessing.cpu_count())]
-    for cmd in (cmd1, cmd2, cmd3):
-        try:
-            if subprocess.call(cmd, cwd='pyvex_c', env=e) == 0:
-                break
-        except OSError as err:
-            continue
+    if sys.platform in ('win32'):
+        cmd = ['nmake', '/f', 'Makefile-msvc']
     else:
+        cmd = ['gmake', '-j', str(multiprocessing.cpu_count())]
+
+    if subprocess.call(cmd, cwd='pyvex_c', env=e) != 0:
         raise LibError("Unable to build libpyvex.")
 
 def _shuffle_files():
