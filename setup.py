@@ -75,6 +75,8 @@ def _build_vex():
 
     if sys.platform in ('win32'):
         cmd = ['nmake', '/f', 'Makefile-msvc', 'all']
+    elif sys.platform in ('linux'):
+        cmd = ['make', '-f', 'Makefile-gcc', '-j', str(multiprocessing.cpu_count()), 'all']
     else:
         cmd = ['gmake', '-f', 'Makefile-gcc', '-j', str(multiprocessing.cpu_count()), 'all']
 
@@ -89,6 +91,8 @@ def _build_pyvex():
 
     if sys.platform in ('win32'):
         cmd = ['nmake', '/f', 'Makefile-msvc']
+    elif sys.platform in ('linux'):
+        cmd = ['make', '-j', str(multiprocessing.cpu_count())]
     else:
         cmd = ['gmake', '-j', str(multiprocessing.cpu_count())]
 
