@@ -19,8 +19,9 @@ class IRStmt(VEXObject):
 
     __slots__ = [ ]
 
-    def pp(self):
-        print(self.__str__())
+    def pp(self, arch=None):
+        #print("hhhh")
+        print(self.__str__(arch=arch))
 
     @property
     def expressions(self) -> Iterator['IRExpr']:
@@ -166,6 +167,8 @@ class Put(IRStmt):
     def __str__(self, reg_name=None, arch=None, tyenv=None):
         if arch is not None and tyenv is not None:
             reg_name = arch.translate_register_name(self.offset, self.data.result_size(tyenv) // 8)
+        elif arch is not None and tyenv is None:
+            reg_name = arch.translate_register_name(self.offset)
 
         if reg_name is not None:
             return "PUT(%s) = %s" % (reg_name, self.data)
@@ -235,6 +238,8 @@ class WrTmp(IRStmt):
 
         if arch is not None and tyenv is not None and isinstance(self.data, Get):
             reg_name = arch.translate_register_name(self.data.offset, self.data.result_size(tyenv) // 8)
+        elif arch is not None and tyenv is None and isinstance(self.data, Get):
+            reg_name = arch.translate_register_name(self.data.offset)
 
         if reg_name is not None and isinstance(self.data, expr.Get):
             return "t%d = %s" % (self.tmp, self.data.__str__(reg_name=reg_name))
